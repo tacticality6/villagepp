@@ -17,7 +17,7 @@ public:
     /*
      
     */
-    explicit Terraformer(mcpp::MinecraftConnection* conn = nullptr);
+    explicit Terraformer(mcpp::MinecraftConnection* conn);
 
     int flattenPlot(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
 
@@ -25,9 +25,5 @@ public:
 
     void purgeTrees(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
 
-    const std::map<const mcpp::Coordinate, const int> getHeightMap(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
-
-    const std::map<const mcpp::Coordinate, const BlockType> getBlockMap(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
-
-    const std::map<const mcpp::Coordinate, const BlockType> getSurfaceBlockMap(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
+    std::vector<std::vector<mcpp::BlockType>> getSurfaceBlocks(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
 };

@@ -2,9 +2,9 @@
 #include <mcpp/block.h>
 
 #include <numeric>
+#include <cassert>
 
-
-#include "terraformer.h"
+#include "../include/terraformer.h"
 
 
 /*
@@ -15,122 +15,102 @@ Terraformer
 using namespace mcpp;
 
 
-explicit Terraformer::Terraformer(MinecraftConnection* conn)
+Terraformer::Terraformer(MinecraftConnection* conn)
 {
-    if (conn)
-    {
-        mc = conn;
-    }
-    else
-    {
-        mc = &MinecraftConnection();
-    }
+    assert(conn != nullptr);
+    mc = conn;
 }
-
 
 int Terraformer::flattenPlot(const Coordinate& loc1, const Coordinate& loc2)
 {
+    //first remove trees from the plot
     this->purgeTrees(loc1, loc2);
 
-    auto heights = mc->getHeights(loc1, loc2);
+    //get the average height
+    std::vector heights = this->mc->getHeights(loc1, loc2);
+    int avgHeight = 0;
+    int numBlocks = 0;
+    for (std::vector row : heights)
+        for (int height : row)
+        {
+            avgHeight += height;
+            numBlocks += 1;
+        }
+    
+    avgHeight = (int)(((double)avgHeight / numBlocks) + 0.5);
+    std::vector surfaceBlocks = this->getSurfaceBlocks(loc1, loc2);
 
-    int avg_height = static_cast<int>(std::reduce(heights.begin(), heights.end(), 0.0) / heights.size());
+    for (int x=0; x < surfaceBlocks.size(); x++) {
+        for(int z=0; z < surfaceBlocks[x].size(); z++)
+        {
+            BlockType surfaceBlock = surfaceBlocks[x][z];
 
-    ///TODO: get some other data
-    auto surfaceBlocks = this->getSurfaceBlockMap(loc1, loc2);
-
-    //iterate and flatten
-    for (auto el : surfaceBlocks)
-    {
-        const Coordinate& loc = el.first;
-        const BlockType surfaceBlock = el.second;
-
-        //set blocks above to air
-        mc->setBlocks(Coordinate(loc.x, avg_height+1, loc.z), Coordinate(loc.x, MAX_HEIGHT, loc.z), Blocks::AIR);
-        //set surface block
-        mc->setBlock(Coordinate(loc.x, avg_height, loc.z), surfaceBlock);
-        //set blocks below
-        mc->setBlocks(Coordinate(loc.x, avg_height-15, loc.z), Coordinate(loc.x, avg_height-1, loc.z), (surfaceBlock == Blocks::GRASS ? Blocks::DIRT : surfaceBlock));
-
+            //set blocks above to air
+            this->mc->setBlocks(Coordinate(loc1.x+x, avgHeight, loc1.z+z), 
+                                Coordinate(loc1.x+x, MAX_HEIGHT, loc1.z+z),
+                                Blocks::AIR);
+            
+            //set top block to surface block
+            this->mc->setBlock(Coordinate(loc1.x+x, avgHeight, loc1.z+z), 
+                               surfaceBlock);
+            
+            //set blocks below
+            //if top block is grass, set below blocks to dirt
+            if (surfaceBlock.id == Blocks::GRASS.id)
+                this->mc->setBlocks(Coordinate(loc1.x+x, 0, loc1.z+z),
+                                    Coordinate(loc1.x+x, avgHeight-1, loc1.z+z),
+                                    Blocks::DIRT);
+            else
+                this->mc->setBlocks(Coordinate(loc1.x+x, 0, loc1.z+z),
+                                    Coordinate(loc1.x+x, avgHeight-1, loc1.z+z),
+                                    surfaceBlock);
+            
+        }
     }
-
-    return avg_height;
+    return avgHeight;
 }
 
-
-int Terraformer::placePlotAndSmoothSurroundings(const Coordinate& loc1, const Coordinate& loc2, int SEARCH_RANGE=5)
+std::vector<std::vector<BlockType>> Terraformer::getSurfaceBlocks(const Coordinate& loc1, const Coordinate& loc2)
 {
-    Coordinate scaledLoc1 = Coordinate(loc1.x-SEARCH_RANGE, loc1.y, loc1.z-SEARCH_RANGE);
-    Coordinate scaledLoc2 = Coordinate(loc2.x-SEARCH_RANGE, loc2.y, loc2.z-SEARCH_RANGE);
-    //first, flatten the plot
-    int plotHeight = this->flattenPlot(loc1, loc2);
-    //remove trees from search range
-    this->purgeTrees(scaledLoc1, scaledLoc2);
+    std::vector heights = this->mc->getHeights(loc1, loc2);
+    std::vector blocks = this->mc->getBlocks(Coordinate(loc1.x, 0, loc1.z), 
+                                             Coordinate(loc2.x, MAX_HEIGHT, loc2.z));
 
-    //get data
-    auto heightMap = this->getHeightMap(scaledLoc1, scaledLoc2);
-    auto surfaceMap = this->getSurfaceBlockMap(scaledLoc1, scaledLoc2);
-
-    //minimize unnatural jumps in height by using a scaled value based on distance
-    double weightScale = 1.0 / SEARCH_RANGE;
-    //iterate
-    for (int i=0; i<SEARCH_RANGE+1; i++)
-    {
-        for (auto el : heightMap)
+    std::vector<std::vector<BlockType>> surfaceBlocks (
+        heights.size(),
+        std::vector<BlockType> (
+            heights[0].size(),
+            Blocks::DIRT
+        )
+    );
+    for (int x=0; x < heights.size(); x++) {
+        for (int z=0; z < heights[x].size(); z++)
         {
-            const Coordinate loc = el.first;
-            BlockType surfaceBlock = surfaceMap[loc];
-            int blockHeight = heightMap[loc];
-            //skip over fluid/ice blocks
-            if (surfaceBlock == Blocks::STILL_WATER || surfaceBlock == Blocks::FLOWING_WATER ||
-                surfaceBlock == Blocks::STILL_LAVA  || surfaceBlock == Blocks::FLOWING_LAVA  ||
-                surfaceBlock == Blocks::ICE
-            )
-                continue;
-
-            //this large logic block selects a rectangle from the height map
-            //the rectangle starts from the outermost and moves in, based on i
-            if (!(
-                (
-                    ((loc.x == loc1.x+i) || (loc.x == (loc2.x-i)))
-                    &&
-                    ((loc.z >= loc1.z+1) && (loc.z <= (loc2.z-i)))
-                )
-                ||
-                (
-                    ((loc.z == loc1.z+i) || (loc.z == (loc2.z-i)))
-                    &&
-                    ((loc.x >= loc1.x+1) && (loc.x <= (loc2.x-i)))
-            )))
-                continue;
-
-            //if we get to this stage, we have selected the correct rectangle
-            int targetHeight = static_cast<int>(blockHeight + std::ceil((plotHeight-blockHeight)*(weightScale*i)));
-
-            //surface block
-            mc->setBlock(Coordinate(loc.x, targetHeight, loc.z), surfaceBlock);
-            if (blockHeight < plotHeight)
-            {
-                //build up 
-                //set below
-                mc->setBlocks(Coordinate(loc.x, targetHeight-10, loc.z), Coordinate(loc.x, targetHeight-1, loc.z), (surfaceBlock == Blocks::GRASS ? Blocks::DIRT : surfaceBlock));
-            }
-            else
-            {
-                //build down
-                //clear above
-                mc->setBlocks(Coordinate(loc.x, targetHeight+1, loc.z), Coordinate(loc.x, MAX_HEIGHT, loc.z), Blocks::AIR);
-            }
+            int y = heights[x][z];
+            surfaceBlocks[x][z] = blocks[y][x][z];
         }
     }
 
-    return plotHeight;
-
+    return surfaceBlocks;
 }
 
-
-void Terraformer::purgeTrees(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2)
+void Terraformer::purgeTrees(const Coordinate& loc1, const Coordinate& loc2)
 {
-    int lowestHeight;
-    int greatestHeight;
+    std::vector blocks = this->mc->getBlocks(Coordinate(loc1.x, 0, loc1.z),
+                                             Coordinate(loc2.x, MAX_HEIGHT, loc2.z));
+    
+    for (int y=0; y < blocks.size(); y++) {
+        for (int x=0; x < blocks[y].size(); x++) {
+            for (int z=0; z < blocks[x].size(); z++) 
+            {
+                BlockType block = blocks[y][x][z];
+                if (block.id == Blocks::OAK_WOOD.id 
+                ||  block.id == Blocks::OAK_LEAVES.id)
+                {
+                    this->mc->setBlock(Coordinate(loc1.x+x, y, loc1.z+z),
+                                      Blocks::AIR);
+                }
+            }
+        }
+    }
 }
