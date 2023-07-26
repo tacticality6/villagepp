@@ -12,9 +12,9 @@ int main()
     Terraformer terraformer{&mc};
 
     Coordinate playerCoordinate = mc.getPlayerPosition();
-    Coordinate lowCoord = playerCoordinate - Coordinate(5,5,5);
-    Coordinate highCoord = playerCoordinate + Coordinate(5,5,5);
-    terraformer.flattenPlot(lowCoord, highCoord);
+    Coordinate lowCoord = playerCoordinate - Coordinate(8,8,8);
+    Coordinate highCoord = playerCoordinate + Coordinate(8,8,8);
+    terraformer.placePlotAndSmoothSurroundings(lowCoord, highCoord);
 
     return 0;
 }

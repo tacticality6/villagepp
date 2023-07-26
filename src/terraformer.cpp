@@ -3,6 +3,7 @@
 
 #include <numeric>
 #include <cassert>
+#include <cmath>
 
 #include "../include/terraformer.h"
 
@@ -113,4 +114,91 @@ void Terraformer::purgeTrees(const Coordinate& loc1, const Coordinate& loc2)
             }
         }
     }
+}
+
+int Terraformer::placePlotAndSmoothSurroundings(const Coordinate& loc1, const Coordinate& loc2, int SEARCH_RANGE)
+{
+    int plotHeight = this->flattenPlot(loc1, loc2);
+
+    Coordinate search{SEARCH_RANGE,0,SEARCH_RANGE};
+    Coordinate extendedLoc1 = loc1 - search;
+    Coordinate extendedLoc2 = loc2 + search;
+
+    this->purgeTrees(extendedLoc1, extendedLoc2);
+
+    std::vector surfaceBlocks = this->getSurfaceBlocks(extendedLoc1, extendedLoc2);
+    std::vector heights = this->mc->getHeights(extendedLoc1, extendedLoc2);
+    double weightScale = 1.0 / SEARCH_RANGE;
+
+    for (int i=0; i<SEARCH_RANGE+1; i++) {
+        for (int x=0; x<surfaceBlocks.size(); x++) {
+            for (int z=0; z<surfaceBlocks[x].size(); z++)
+            {
+                BlockType surfaceBlock = surfaceBlocks[x][z];
+
+                //dont touch water
+                switch (surfaceBlock.id)
+                {
+                    case Blocks::STILL_WATER.id:
+                    case Blocks::FLOWING_WATER.id:
+                    case Blocks::STILL_LAVA.id:
+                    case Blocks::FLOWING_LAVA.id:
+                        continue;
+                }
+
+                //get correct slice
+                //this mess selects a rectangle from the 2d array, with corners i from the edge
+                if ( ! (
+                    (
+                        ((x==i) || (x == (surfaceBlocks.size()-1-i)))
+                        &&
+                        ((z>=i) && (z <= (surfaceBlocks[x].size()-1-i)))
+                    )
+                    ||
+                    (
+                        ((z==i) || (z == (surfaceBlocks[x].size()-1-i)))
+                        &&
+                        ((x>=i) && (x <= (surfaceBlocks.size()-1-i)))
+                    )
+                    )) {
+                    continue;
+                }
+
+                int realX = extendedLoc1.x+x;
+                int realZ = extendedLoc1.z+z;
+
+                int targetHeight = heights[x][z] + ceil((plotHeight-heights[x][z])*(weightScale*i));
+
+                //if building up
+                if (heights[x][z] < plotHeight)
+                {
+                    //top block
+                    this->mc->setBlock(Coordinate(realX, targetHeight, realZ), surfaceBlock);
+
+                    //set below
+                    //if top block is grass, set elow blocks to dirt
+                    if (surfaceBlock.id == Blocks::GRASS.id)
+                        this->mc->setBlocks(Coordinate(realX, targetHeight-1, realZ),
+                                            Coordinate(realX, targetHeight-10, realZ),
+                                            Blocks::DIRT);
+                    else
+                        this->mc->setBlocks(Coordinate(realX, targetHeight-1, realZ),
+                                            Coordinate(realX, targetHeight-10, realZ),
+                                            surfaceBlock);
+                }
+                else if (heights[x][z] > plotHeight)
+                {
+                    //build down
+                    //top block
+                    this->mc->setBlock(Coordinate(realX, targetHeight, realZ), surfaceBlock);
+                    //clear above
+                    this->mc->setBlocks(Coordinate(realX, targetHeight+1, realZ),
+                                        Coordinate(realX, MAX_HEIGHT, realZ),
+                                        Blocks::AIR);
+
+                }
+            }
+        }
+    }
+    return plotHeight;
 }

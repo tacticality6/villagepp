@@ -21,7 +21,7 @@ public:
 
     int flattenPlot(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
 
-    int placePlotAndSmoothSurroundings(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2, int SEARCH_RANGE);
+    int placePlotAndSmoothSurroundings(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2, int SEARCH_RANGE=5);
 
     void purgeTrees(const mcpp::Coordinate& loc1, const mcpp::Coordinate& loc2);
 
