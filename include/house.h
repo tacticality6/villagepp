@@ -41,6 +41,8 @@ private:
 public:
     explicit House(mcpp::MinecraftConnection* mc, Plot plot, Orientation orientation);
 
+    mcpp::Coordinate getDoorCoordinate();
+    
     //build methods
     void build();
 
@@ -63,5 +65,4 @@ public:
 
     //void furnishHouse(); //I'm going to put this code in Room
 
-    mcpp::Coordinate getDoorCoordinate();
 };
