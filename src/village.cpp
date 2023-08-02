@@ -9,6 +9,7 @@
 using namespace mcpp;
 
 Village::Village(MinecraftConnection* conn)
+: terraformer{nullptr}
 {
     assert(conn != nullptr);
     this->mc = conn;

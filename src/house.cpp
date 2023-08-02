@@ -16,6 +16,13 @@ using namespace mcpp;
 
 House::House(mcpp::MinecraftConnection* conn, Plot plot)
     : plot{plot}
+    , wallMat{Blocks::AIR}
+    , floorMat{Blocks::AIR}
+    , roofMat{Blocks::AIR}
+    , roofSlabMat{Blocks::AIR}
+    , pillarMat{Blocks::AIR}
+    , doorType{Blocks::AIR}
+    , stairMat{Blocks::AIR}
 {
     assert(conn != nullptr);
     this->mc = conn;
