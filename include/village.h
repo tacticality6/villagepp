@@ -3,25 +3,34 @@
 #include <vector>
 
 #include "terraformer.h"
+#include "plot.h"
 
 #pragma once
 
 class Village
 {
 private:
-    enum ArrayRepresentation {NONE, PLOT, DOOR, WATER};
+    enum ArrayFeatures {NONE, PLOT, DOOR, TREE, WATER, TEMP_ISOLATE};
+    mcpp::MinecraftConnection* mc;
     static constexpr int maxSize{150};
     static constexpr int plotSize{15};
-    mcpp::MinecraftConnection* mc;
-    Terraformer* terraformer;
-    int numPlots;
     mcpp::Coordinate centrepoint;
-    std::vector<int> villageDomain;
+    std::pair<mcpp::Coordinate, mcpp::Coordinate> villageDomain;
+    std::vector<std::vector<ArrayFeatures>> arrayRepresentation;
+    Terraformer terraformer;
+    int numPlots;
+    std::vector<Plot> plots;
 
 
 
 public:
-    explicit Village(mcpp::MinecraftConnection* conn = nullptr);
+    explicit Village(mcpp::MinecraftConnection* conn);
 
-    
+    void build();
+
+    void updateArrayRepresentationNaturalFeatures();
+    void setPlots();
+
+    mcpp::Coordinate worldToVillage(const mcpp::Coordinate& loc);
+    mcpp::Coordinate villageToWorld(const mcpp::Coordinate& loc);
 };
