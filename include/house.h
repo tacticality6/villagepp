@@ -13,7 +13,7 @@ private:
     enum Orientation { NORTH, EAST, SOUTH, WEST};
 
     mcpp::MinecraftConnection* mc;
-    Plot& plot;
+    Plot plot;
     mcpp::Coordinate doorCoordinate;
     Orientation orientation;
     std::vector<Room> rooms;
@@ -40,7 +40,7 @@ private:
     mcpp::BlockType stairMat;
 
 public:
-    explicit House(mcpp::MinecraftConnection* conn, Plot& plot);
+    explicit House(mcpp::MinecraftConnection* conn, Plot plot);
 
     const mcpp::Coordinate& getDoorCoordinate();
     

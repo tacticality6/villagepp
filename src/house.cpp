@@ -14,7 +14,7 @@
 
 using namespace mcpp;
 
-House::House(mcpp::MinecraftConnection* conn, Plot& plot)
+House::House(mcpp::MinecraftConnection* conn, Plot plot)
     : plot{plot}
 {
     assert(conn != nullptr);
