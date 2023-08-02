@@ -1,8 +1,5 @@
 #include <mcpp/mcpp.h>
 
-#include <algorithm>
-#include <iostream>
-#include <random>
 #include <vector>
 
 #include "./plot.h"
@@ -16,7 +13,7 @@ private:
     enum Orientation { NORTH, EAST, SOUTH, WEST};
 
     mcpp::MinecraftConnection* mc;
-    Plot plot;
+    Plot& plot;
     mcpp::Coordinate doorCoordinate;
     Orientation orientation;
     std::vector<Room> rooms;
@@ -27,6 +24,10 @@ private:
     int l;
     int h;
     int w;
+
+    //house corners (supplementary)
+    mcpp::Coordinate loc1;
+    mcpp::Coordinate loc2;
 
     //material blocks
     mcpp::BlockType wallMat;
@@ -39,9 +40,9 @@ private:
     mcpp::BlockType stairMat;
 
 public:
-    explicit House(mcpp::MinecraftConnection* mc, Plot plot, Orientation orientation);
+    explicit House(mcpp::MinecraftConnection* conn, Plot& plot);
 
-    mcpp::Coordinate getDoorCoordinate();
+    const mcpp::Coordinate& getDoorCoordinate();
     
     //build methods
     void build();
@@ -57,12 +58,14 @@ public:
     void buildRoofPyramid();
     void buildRoofFlat();
 
-    void roomSplit(Room room, int choiceAxis); //maybe edit this one
+    void roomSplit(const Room& room, int choiceAxis); //maybe edit this one
 
     void buildFloors(bool anotherStorey);
 
-    void buildStairs(mcpp::Coordinate loc);
+    void buildStairs(const mcpp::Coordinate& loc);
 
     //void furnishHouse(); //I'm going to put this code in Room
+
+    const Plot& getPlot();
 
 };
