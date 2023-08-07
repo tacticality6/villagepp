@@ -24,6 +24,7 @@ private:
     int l;
     int h;
     int w;
+    int finalH;
 
     //house corners (supplementary)
     mcpp::Coordinate loc1;
@@ -53,10 +54,8 @@ public:
 
     void buildRoof();
 
-    void buildRoofNS(int increment=0);
-    void buildRoofEW(int increment=0);
-    void buildRoofPyramid();
-    void buildRoofFlat();
+    void buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& locB, int increment=0);
+    void buildRoofEW(const mcpp::Coordinate& locA, const mcpp::Coordinate& locB, int increment=0);
 
     void roomSplit(const Room& room, int choiceAxis); //maybe edit this one
 
