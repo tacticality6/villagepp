@@ -8,23 +8,24 @@
 class Room
 {
 private:
+    mcpp::MinecraftConnection* mc;
     mcpp::Coordinate l1;
     mcpp::Coordinate l2;
     int l;
     int w;
-    std::vector<int> layout;
+    std::vector<std::vector<int>> layout;
     std::string type;
-    mcpp::Coordinate drCrd;
 
 public:
+    Room(mcpp::MinecraftConnection* conn, mcpp::Coordinate c1, mcpp::Coordinate c2);
+
     bool isStaircaseInside;
     bool isFurnished;
-    
+
     const mcpp::Coordinate& loc1;
     const mcpp::Coordinate& loc2;
     const int& length;
     const int& width;
-    const mcpp::Coordinate& doorCoord;
 
     void setLayout();
     void furnish();
