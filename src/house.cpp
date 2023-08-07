@@ -121,7 +121,7 @@ void House::build()
     this->roomSplit(this->rooms[this->numRooms], choiceAxis);
 
     bool isMultistorey = (bool)(rand()%2);
-    this->buildFloors(isMultistorey);
+    this->buildFloors(Coordinate(loc1.x, loc2.y+1, loc1.z), Coordinate(loc2.x, loc2.y+h, loc2.z), isMultistorey);
 
     this->buildRoof();
 }
@@ -407,9 +407,105 @@ void House::roomSplit(const Room& room, int choiceAxis)
     }
     else
     {
+        mc->setBlocks(Coordinate(locA.x, locA.y, zMid), Coordinate(locB.x, locB.y, zMid), wallMat);
+
+        int xDoorCoord;
+        if (locA.x+1 >= xMid-1)
+            xDoorCoord = locA.x+1;
+        else
+            xDoorCoord = (rand() % ((xMid-1)-(locA.x+1))) + (locA.x+1);
         
+        mc->setBlock(Coordinate(xDoorCoord, locA.y+1, zMid), doorType.withMod(BlockMods::DoorOrient::NORTH_TOP));
+        mc->setBlock(Coordinate(xDoorCoord, locA.y, zMid), doorType.withMod(BlockMods::DoorOrient::NORTH_BOTTOM));
+        
+        this->rooms[this->numRooms] = Room();
+
+        bool splitFirstRoom = (bool)(rand() % 2);
+        if (splitFirstRoom == 0)
+            return;
+        else
+            roomSplit(rooms[numRooms], 1);
+        
+        this->numRooms++;
+        this->rooms.resize(numRooms+1);
+        this->rooms[numRooms] = Room();
+
+        bool splitSecondRoom = (bool)(rand() % 2);
+        if (splitSecondRoom == 0)
+            return;
+        else
+            roomSplit(rooms[numRooms], 1);  
     }
 
+}
+
+void House::buildFloors(const Coordinate& locA, const Coordinate& locB, bool anotherStorey)
+{
+    if (!anotherStorey)
+        return;
+    else if (this->numFloors == 2)
+        return;
+
+
+    mc->setBlocks(locA, locB, wallMat);
+
+    mc->setBlocks(Coordinate(locA.x+2, locA.y+1, locA.z), Coordinate(locB.x-2, locB.y-1, locB.z), Blocks::GLASS_PANE);
+    mc->setBlocks(Coordinate(locA.x, locA.y+1, locA.z+2), Coordinate(locB.x, locB.y-1, locB.z-2), Blocks::GLASS_PANE);
+
+    mc->setBlocks(Coordinate(locA.x+2, locB.y-1, locA.z-1), Coordinate(locB.x-2, locB.y-1, locA.z-1), roofSlabMat.withMod(8));
+    mc->setBlocks(Coordinate(locA.x+2, locB.y-1, locB.z+1), Coordinate(locB.x-2, locB.y-1, locB.z+1), roofSlabMat.withMod(8));
+    mc->setBlocks(Coordinate(locA.x-1, locB.y-1, locA.z+2), Coordinate(locA.x-1, locB.y-1, locB.z-2), roofSlabMat.withMod(8));
+    mc->setBlocks(Coordinate(locB.x+1, locB.y-1, locA.z+2), Coordinate(locB.x+1, locB.y-1, locB.z-2), roofSlabMat.withMod(8));
+
+    mc->setBlocks(Coordinate(locA.x+1, locA.y, locA.z+1), Coordinate(locB.x-1, locB.y-1, locB.z-1), Blocks::AIR);
+    
+    mc->setBlocks(Coordinate(locA.x, locA.y-1, locA.z), Coordinate(locB.x, locA.y-1, locB.z), floorMat);
+
+    std::vector<int> xCoords = {locA.x, locB.x};
+    std::vector<int> zCoords = {locA.z, locB.z};
+    for (int x : xCoords) {
+        for (int z: zCoords) {
+            mc->setBlocks(Coordinate(x, locA.y-1, z), Coordinate(x, locB.y, z), pillarMat);
+        }
+    }
+
+
+    this->finalH += h;
+    this->numRooms++;
+    this->rooms.resize(numRooms+1);
+    this->numFloors++;
+
+    this->rooms[numRooms] = Room();
+
+    int choiceSplit = rand() % 2;
+    if (choiceSplit == 1)
+    {
+        int choiceAxis = rand() % 2;
+        roomSplit(rooms[numRooms], choiceAxis);
+    }
+
+    buildStairs(Coordinate(locA.x, locA.y-5, locA.z));
+
+    bool anotherStorey = (bool)(rand() % 2);
+    if (anotherStorey)
+        buildFloors(Coordinate(locA.x, locA.y+1, locA.z), Coordinate(locB.x, locB.y+this->h, locB.z), anotherStorey);
+}
+
+void House::buildStairs(const Coordinate& loc)
+{
+    mc->setBlocks(Coordinate(loc.x+1,loc.y,loc.z+1), Coordinate(loc.x+4, loc.y+4, loc.z+1), Blocks::AIR);
+
+    mc->setBlock(Coordinate(loc.x+3, loc.y, loc.z+2), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+2, loc.y+1, loc.z+2), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+2), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(loc.x+2, loc.y+2, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+3, loc.y+3, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+4, loc.y+4, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
+
+    mc->setBlocks(Coordinate(loc.x+5, loc.y+4, loc.z+1), Coordinate(loc.x+5, loc.y+4, loc.z+3), floorMat);
+    mc->setBlocks(Coordinate(loc.x+4, loc.y+4, loc.z+2), Coordinate(loc.x+1, loc.y+4, loc.z+3), floorMat);
+    mc->setBlock(Coordinate(loc.x+4, loc.y+4, loc.z+2), floorMat);
 }
 
 const Plot& House::getPlot()
