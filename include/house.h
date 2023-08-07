@@ -59,7 +59,7 @@ public:
 
     void roomSplit(const Room& room, int choiceAxis); //maybe edit this one
 
-    void buildFloors(bool anotherStorey);
+    void buildFloors(const mcpp::Coordinate& locA, const mcpp::Coordinate& locB, bool anotherStorey);
 
     void buildStairs(const mcpp::Coordinate& loc);
 
