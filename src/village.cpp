@@ -9,19 +9,19 @@
 using namespace mcpp;
 
 Village::Village(MinecraftConnection* conn)
-: terraformer{nullptr}
+: terraformer{conn}
 {
     assert(conn != nullptr);
     this->mc = conn;
 
     this->terraformer = Terraformer(this->mc);
 
-    this->numPlots = rand() % 6 + 5; // 5-10
+    this->numPlots = (rand() % 6) + 5; // 5-10
 
     this->centrepoint = mc->getPlayerPosition();
 
     Coordinate halfMax {maxSize/2, maxSize/2, maxSize/2};
-    this->villageDomain = {centrepoint-halfMax, centrepoint+halfMax};
+    this->villageDomain = {centrepoint-halfMax, centrepoint+halfMax - Coordinate{1,1,1}};
 
     this->arrayRepresentation = {
         maxSize,
@@ -39,7 +39,7 @@ void Village::updateArrayRepresentationNaturalFeatures()
         villageDomain.first, villageDomain.second);
     
     for (int x=0; x < surfaceBlocks.size(); x++) {
-        for (int z=0; z < surfaceBlocks[z].size(); z++)
+        for (int z=0; z < surfaceBlocks[x].size(); z++)
         {
             BlockType block = surfaceBlocks[x][z];
 
@@ -66,9 +66,10 @@ void Village::setPlots()
     std::vector<std::pair<Coordinate, Coordinate>> interimPlots;
 
     int flatness = 0;
-    while (plots.size() < numPlots) {
-        for (int x=tolerance; x < arrayRepresentation.size()-tolerance; x++) {
-            for (int z=tolerance; z < arrayRepresentation[x].size()-tolerance; z++)
+    
+    while (plots.size() < numPlots && flatness < 50) {
+        for (int x=tolerance; x < arrayRepresentation.size()-tolerance-plotSize; x++) {
+            for (int z=tolerance; z < arrayRepresentation[x].size()-tolerance-plotSize; z++)
             {
                 bool valid = true;
                 for(int l=x-tolerance; l < x+plotSize+tolerance; l++) {
@@ -94,7 +95,6 @@ void Village::setPlots()
                 if (!valid)
                     continue;
                 
-
                 //if you get here, plot is valid
                 interimPlots.push_back (
                     std::pair<Coordinate, Coordinate> {
@@ -104,42 +104,56 @@ void Village::setPlots()
                 );
 
                 //get isolation bounds
-                int xBound = std::max(0, x-isolationRadius);
-                int zBound = std::max(0, z-isolationRadius);
+                const int xLBound = std::max(0, x-isolationRadius);
+                const int zLBound = std::max(0, z-isolationRadius);
+                const int xHBound = std::min(x+plotSize+isolationRadius, (int)arrayRepresentation.size()-1);
+                const int zHBound = std::min(z+plotSize+isolationRadius, (int)arrayRepresentation[0].size()-1);
+
+
                 //mark array representation
                 //mark isolation radius (temp)
-                for (int l=xBound; l < std::min(x+plotSize+isolationRadius, (int)arrayRepresentation.size()-1); l++) {
-                    for (int w=zBound; z < std::min(z+plotSize+isolationRadius, (int)arrayRepresentation[l].size()-1); w++) {
+                for (int l=xLBound; l < xHBound; l++) {
+                    for (int w=zLBound; w < zHBound; w++) {
                         arrayRepresentation[l][w] = ArrayFeatures::TEMP_ISOLATE;
                     }
                 }
 
                 //mark plot
-                for (int l=x; l < x+plotSize; x++) {
-                    for (int w=z; w < z+plotSize; z++) {
-                        arrayRepresentation[l][z] = ArrayFeatures::PLOT;
+                for (int l=x; l < x+plotSize-1; l++) {
+                    for (int w=z; w < z+plotSize-1; w++) {
+                        arrayRepresentation[l][w] = ArrayFeatures::PLOT;
                     }
                 }
 
                 //exit early if sufficient plots
-                if (plots.size() == numPlots)
+                if (interimPlots.size() == numPlots)
                     break;
             }
             //also exit here
-            if (plots.size() == numPlots)
+            if (interimPlots.size() == numPlots)
                 break;
         }
         //increase flatness tolerance
+        if (interimPlots.size() == numPlots)
+            break;
         flatness++;
     }
-
     //once all plots are place, remove isolation markers
     for (int x=0; x < arrayRepresentation.size(); x++) {
         for (int z=0; z < arrayRepresentation[x].size(); z++) {
             if (arrayRepresentation[x][z] == ArrayFeatures::TEMP_ISOLATE) {
-                arrayRepresentation[x][z] == ArrayFeatures::NONE;
+                arrayRepresentation[x][z] = ArrayFeatures::NONE;
             }
         }
+    }
+
+    for (auto p : interimPlots)
+    {
+        Coordinate a = villageToWorld(p.first);
+        Coordinate b = villageToWorld(p.second);
+        std::cout << a.x << " " << a.z << "--" << b.x << " " << b.z << std::endl;
+        int height = this->terraformer.placePlotAndSmoothSurroundings(a, b);
+        this->plots.push_back(Plot(a, b, height));
     }
 
     //update the natural features of the array we just erased with the plots
@@ -149,7 +163,7 @@ void Village::setPlots()
 void Village::build()
 {
     this->setPlots();
-
+/*
     std::vector<Coordinate> doorCoordinates;
 
     for (int index=0; index < plots.size(); index++)
@@ -181,7 +195,7 @@ void Village::build()
     }
 
     //do roads
-
+*/
 }
 
 Coordinate Village::worldToVillage(const Coordinate& loc)
