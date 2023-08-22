@@ -1,7 +1,7 @@
 
 namespace BlockMods
 {
-    enum DoorOrient
+    enum class DoorOrient
     {
         WEST_TOP = 8,
         WEST_BOTTOM = 0,
@@ -12,7 +12,7 @@ namespace BlockMods
         SOUTH_TOP = 11,
         SOUTH_BOTTOM = 3
     };
-    enum StairOrient
+    enum class StairOrient
     {
         EAST_ASCENDING = 0,
         WEST_ASCENDING = 1,
@@ -23,14 +23,14 @@ namespace BlockMods
         NORTH_DESCENDING = 6,
         SOUTH_DESCENDING = 7
     };
-    enum SignOrient
+    enum class SignOrient
     {
         SOUTH = 0,
         NORTH = 3,
         WEST = 5,
         EAST = 4
     };
-    enum BedOrient
+    enum class BedOrient
     {
         NORTH_BOTTOM = 0,
         NORTH_TOP = 8,
@@ -41,7 +41,7 @@ namespace BlockMods
         EAST_BOTTOM = 1,
         EAST_TOP = 9
     };
-    enum ButtonOrient
+    enum class ButtonOrient
     {
         EAST = 2,
         SOUTH = 4,
