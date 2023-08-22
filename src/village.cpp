@@ -163,7 +163,7 @@ void Village::setPlots()
 void Village::build()
 {
     this->setPlots();
-/*
+
     std::vector<Coordinate> doorCoordinates;
 
     for (int index=0; index < plots.size(); index++)
@@ -195,7 +195,7 @@ void Village::build()
     }
 
     //do roads
-*/
+
 }
 
 Coordinate Village::worldToVillage(const Coordinate& loc)

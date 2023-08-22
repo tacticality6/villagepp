@@ -16,7 +16,7 @@ private:
     Plot plot;
     mcpp::Coordinate doorCoordinate;
     Orientation orientation;
-    std::vector<Room> rooms;
+    std::vector<Room*> rooms;
     int numRooms;
     int numFloors;
 

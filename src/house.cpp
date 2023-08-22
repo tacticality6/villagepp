@@ -118,7 +118,7 @@ void House::build()
     this->placeFrontDoor();
 
     int choiceAxis = (plot.length >= plot.width) ? 0 : 1;
-    this->roomSplit(this->rooms[this->numRooms], choiceAxis);
+    this->roomSplit(*(this->rooms[this->numRooms]), choiceAxis);
 
     bool isMultistorey = (bool)(rand()%2);
     this->buildFloors(Coordinate(loc1.x, loc2.y+1, loc1.z), Coordinate(loc2.x, loc2.y+h, loc2.z), isMultistorey);
@@ -151,7 +151,7 @@ void House::buildFrame()
     }
 
     rooms.resize(numRooms+1); // dodgy way of making it work like the python code
-    rooms[numRooms] = Room(); //TODO:: FIX
+    rooms[numRooms] = new Room{mc, loc1, loc2}; //TODO:: FIX
 
 }
 
@@ -186,88 +186,88 @@ void House::placeFrontDoor()
     {
         case Orientation::NORTH: 
         {
-            mc->setBlock(Coordinate(x,y+2,loc1.z), stairMat.withMod(BlockMods::StairOrient::NORTH_DESCENDING));
+            mc->setBlock(Coordinate(x,y+2,loc1.z), stairMat.withMod((int)BlockMods::StairOrient::NORTH_DESCENDING));
             
             mc->setBlocks(Coordinate(x-1,y-1,loc1.z), Coordinate(x-1,loc2.y,loc1.z), pillarMat);
             mc->setBlocks(Coordinate(x-2,y,loc1.z), Coordinate(x-2,loc2.y,loc1.z), wallMat);
             mc->setBlocks(Coordinate(x+1,y-1,loc1.z), Coordinate(x+1,loc2.y,loc1.z), pillarMat);
             mc->setBlocks(Coordinate(x+2,y,loc1.z), Coordinate(x+2,loc2.y,loc1.z), wallMat);
 
-            mc->setBlock(Coordinate(x, loc2.y+1, loc1.z-1), stairMat.withMod(BlockMods::StairOrient::NORTH_ASCENDING));
-            mc->setBlock(Coordinate(x+1, loc2.y, loc1.z-1), stairMat.withMod(BlockMods::StairOrient::NORTH_ASCENDING));
-            mc->setBlock(Coordinate(x-1, loc2.y, loc1.z-1), stairMat.withMod(BlockMods::StairOrient::NORTH_ASCENDING));
+            mc->setBlock(Coordinate(x, loc2.y+1, loc1.z-1), stairMat.withMod((int)BlockMods::StairOrient::NORTH_ASCENDING));
+            mc->setBlock(Coordinate(x+1, loc2.y, loc1.z-1), stairMat.withMod((int)BlockMods::StairOrient::NORTH_ASCENDING));
+            mc->setBlock(Coordinate(x-1, loc2.y, loc1.z-1), stairMat.withMod((int)BlockMods::StairOrient::NORTH_ASCENDING));
 
-            mc->setBlock(Coordinate(x, loc2.y, loc1.z-1), stairMat.withMod(BlockMods::StairOrient::NORTH_DESCENDING));
+            mc->setBlock(Coordinate(x, loc2.y, loc1.z-1), stairMat.withMod((int)BlockMods::StairOrient::NORTH_DESCENDING));
             
-            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod(BlockMods::DoorOrient::SOUTH_TOP));
-            mc->setBlock(Coordinate(x, y, z), doorType.withMod(BlockMods::DoorOrient::SOUTH_BOTTOM));
+            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod((int)BlockMods::DoorOrient::SOUTH_TOP));
+            mc->setBlock(Coordinate(x, y, z), doorType.withMod((int)BlockMods::DoorOrient::SOUTH_BOTTOM));
             
             break;
         }
         case Orientation::EAST: 
         {
-            mc->setBlock(Coordinate(loc2.x,y+2,z), stairMat.withMod(BlockMods::StairOrient::WEST_DESCENDING));
+            mc->setBlock(Coordinate(loc2.x,y+2,z), stairMat.withMod((int)BlockMods::StairOrient::WEST_DESCENDING));
             
             mc->setBlocks(Coordinate(loc2.x,y-1,z-1), Coordinate(loc2.x,loc2.y,z-1), pillarMat);
             mc->setBlocks(Coordinate(loc2.x,y,z-2), Coordinate(loc2.x,loc2.y,z-2), wallMat);
             mc->setBlocks(Coordinate(loc2.x,y-1,z+1), Coordinate(loc2.x,loc2.y,z+1), pillarMat);
             mc->setBlocks(Coordinate(loc2.x,y,loc1.z+2), Coordinate(loc2.x,loc2.y,loc1.z+2), wallMat);
 
-            mc->setBlock(Coordinate(loc2.x+1, loc2.y+1, z), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
-            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z+1), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
-            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z-1), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
+            mc->setBlock(Coordinate(loc2.x+1, loc2.y+1, z), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
+            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z+1), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
+            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z-1), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
 
-            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z-1), stairMat.withMod(BlockMods::StairOrient::WEST_DESCENDING));
+            mc->setBlock(Coordinate(loc2.x+1, loc2.y, z-1), stairMat.withMod((int)BlockMods::StairOrient::WEST_DESCENDING));
             
-            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod(BlockMods::DoorOrient::WEST_TOP));
-            mc->setBlock(Coordinate(x, y, z), doorType.withMod(BlockMods::DoorOrient::WEST_BOTTOM));
+            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod((int)BlockMods::DoorOrient::WEST_TOP));
+            mc->setBlock(Coordinate(x, y, z), doorType.withMod((int)BlockMods::DoorOrient::WEST_BOTTOM));
             
             break;
         }
         case Orientation::SOUTH: 
         {
-            mc->setBlock(Coordinate(x,y+2,loc2.z), stairMat.withMod(BlockMods::StairOrient::SOUTH_DESCENDING));
+            mc->setBlock(Coordinate(x,y+2,loc2.z), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_DESCENDING));
             
             mc->setBlocks(Coordinate(x-1,y-1,loc2.z), Coordinate(x-1,loc2.y,loc2.z), pillarMat);
             mc->setBlocks(Coordinate(x-2,y,loc2.z), Coordinate(x-2,loc2.y,loc2.z), wallMat);
             mc->setBlocks(Coordinate(x+1,y-1,loc2.z), Coordinate(x+1,loc2.y,loc2.z), pillarMat);
             mc->setBlocks(Coordinate(x+2,y,loc2.z), Coordinate(x+2,loc2.y,loc2.z), wallMat);
 
-            mc->setBlock(Coordinate(x, loc2.y+1, loc2.z-1), stairMat.withMod(BlockMods::StairOrient::SOUTH_ASCENDING));
-            mc->setBlock(Coordinate(x+1, loc2.y, loc2.z-1), stairMat.withMod(BlockMods::StairOrient::SOUTH_ASCENDING));
-            mc->setBlock(Coordinate(x-1, loc2.y, loc2.z-1), stairMat.withMod(BlockMods::StairOrient::SOUTH_ASCENDING));
+            mc->setBlock(Coordinate(x, loc2.y+1, loc2.z-1), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_ASCENDING));
+            mc->setBlock(Coordinate(x+1, loc2.y, loc2.z-1), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_ASCENDING));
+            mc->setBlock(Coordinate(x-1, loc2.y, loc2.z-1), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_ASCENDING));
 
-            mc->setBlock(Coordinate(x, loc2.y, loc2.z-1), stairMat.withMod(BlockMods::StairOrient::SOUTH_DESCENDING));
+            mc->setBlock(Coordinate(x, loc2.y, loc2.z-1), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_DESCENDING));
             
-            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod(BlockMods::DoorOrient::NORTH_TOP));
-            mc->setBlock(Coordinate(x, y, z), doorType.withMod(BlockMods::DoorOrient::NORTH_BOTTOM));
+            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod((int)BlockMods::DoorOrient::NORTH_TOP));
+            mc->setBlock(Coordinate(x, y, z), doorType.withMod((int)BlockMods::DoorOrient::NORTH_BOTTOM));
             
             break;
         }
         case Orientation::WEST: 
         {
-            mc->setBlock(Coordinate(loc1.x,y+2,z), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
+            mc->setBlock(Coordinate(loc1.x,y+2,z), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
             
             mc->setBlocks(Coordinate(loc1.x,y-1,z-1), Coordinate(loc1.x,loc2.y,z-1), pillarMat);
             mc->setBlocks(Coordinate(loc1.x,y,z-2), Coordinate(loc1.x,loc2.y,z-2), wallMat);
             mc->setBlocks(Coordinate(loc1.x,y-1,z+1), Coordinate(loc1.x,loc2.y,z+1), pillarMat);
             mc->setBlocks(Coordinate(loc1.x,y,loc1.z+2), Coordinate(loc1.x,loc2.y,loc1.z+2), wallMat);
 
-            mc->setBlock(Coordinate(loc1.x+1, loc2.y+1, z), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
-            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
-            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z-1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
+            mc->setBlock(Coordinate(loc1.x+1, loc2.y+1, z), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
+            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
+            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z-1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
 
-            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z-1), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
+            mc->setBlock(Coordinate(loc1.x+1, loc2.y, z-1), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
             
-            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod(BlockMods::DoorOrient::EAST_TOP));
-            mc->setBlock(Coordinate(x, y, z), doorType.withMod(BlockMods::DoorOrient::EAST_BOTTOM));
+            mc->setBlock(Coordinate(x, y+1, z), doorType.withMod((int)BlockMods::DoorOrient::EAST_TOP));
+            mc->setBlock(Coordinate(x, y, z), doorType.withMod((int)BlockMods::DoorOrient::EAST_BOTTOM));
             
             break;
         }
     }
 }
 
-void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& locB, int increment=0)
+void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& locB, int increment)
 {
     if (this->l %2 == 0)
     {
@@ -287,13 +287,13 @@ void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& lo
         }
     }
 
-    mc->setBlocks(Coordinate(locA.x-1, locA.y, locA.z-1), Coordinate(locA.x-1, locA.y, locB.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
-    mc->setBlocks(Coordinate(locB.x+1, locA.y, locA.z-1), Coordinate(locB.x+1, locA.y, locB.z+1), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
+    mc->setBlocks(Coordinate(locA.x-1, locA.y, locA.z-1), Coordinate(locA.x-1, locA.y, locB.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlocks(Coordinate(locB.x+1, locA.y, locA.z-1), Coordinate(locB.x+1, locA.y, locB.z+1), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
 
-    mc->setBlock(Coordinate(locA.x, locA.y, locA.z-1), stairMat.withMod(BlockMods::StairOrient::WEST_DESCENDING));
-    mc->setBlock(Coordinate(locB.x, locA.y, locA.z-1), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
-    mc->setBlock(Coordinate(locA.x, locA.y, locB.z+1), stairMat.withMod(BlockMods::StairOrient::WEST_DESCENDING));
-    mc->setBlock(Coordinate(locB.x, locA.y, locB.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(locA.x, locA.y, locA.z-1), stairMat.withMod((int)BlockMods::StairOrient::WEST_DESCENDING));
+    mc->setBlock(Coordinate(locB.x, locA.y, locA.z-1), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(locA.x, locA.y, locB.z+1), stairMat.withMod((int)BlockMods::StairOrient::WEST_DESCENDING));
+    mc->setBlock(Coordinate(locB.x, locA.y, locB.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
 
     if (increment >= 1)
     {
@@ -306,7 +306,7 @@ void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& lo
     return buildRoofNS(Coordinate(locA.x+1, locA.y+1, locA.z), Coordinate(locB.x-1, locA.y+1, locB.z), increment);
 }
 
-void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int increment=0)
+void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int increment)
 {
     if (this->w %2 == 0)
     {
@@ -326,13 +326,13 @@ void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int incr
         }
     }
 
-    mc->setBlocks(Coordinate(locA.x-1, locA.y, locA.z-1), Coordinate(locB.x+1, locA.y, locA.z-1), stairMat.withMod(BlockMods::StairOrient::NORTH_ASCENDING));
-    mc->setBlocks(Coordinate(locA.x-1, locA.y, locB.z+1), Coordinate(locB.x+1, locA.y, locB.z+1), stairMat.withMod(BlockMods::StairOrient::SOUTH_ASCENDING));
+    mc->setBlocks(Coordinate(locA.x-1, locA.y, locA.z-1), Coordinate(locB.x+1, locA.y, locA.z-1), stairMat.withMod((int)BlockMods::StairOrient::NORTH_ASCENDING));
+    mc->setBlocks(Coordinate(locA.x-1, locA.y, locB.z+1), Coordinate(locB.x+1, locA.y, locB.z+1), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_ASCENDING));
 
-    mc->setBlock(Coordinate(locA.x-1, locA.y, locA.z), stairMat.withMod(BlockMods::StairOrient::SOUTH_DESCENDING));
-    mc->setBlock(Coordinate(locA.x-1, locA.y, locB.z), stairMat.withMod(BlockMods::StairOrient::NORTH_DESCENDING));
-    mc->setBlock(Coordinate(locB.x+1, locA.y, locA.z), stairMat.withMod(BlockMods::StairOrient::SOUTH_DESCENDING));
-    mc->setBlock(Coordinate(locB.x+1, locA.y, locB.z), stairMat.withMod(BlockMods::StairOrient::NORTH_DESCENDING));
+    mc->setBlock(Coordinate(locA.x-1, locA.y, locA.z), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_DESCENDING));
+    mc->setBlock(Coordinate(locA.x-1, locA.y, locB.z), stairMat.withMod((int)BlockMods::StairOrient::NORTH_DESCENDING));
+    mc->setBlock(Coordinate(locB.x+1, locA.y, locA.z), stairMat.withMod((int)BlockMods::StairOrient::SOUTH_DESCENDING));
+    mc->setBlock(Coordinate(locB.x+1, locA.y, locB.z), stairMat.withMod((int)BlockMods::StairOrient::NORTH_DESCENDING));
 
     if (increment >= 1)
     {
@@ -384,26 +384,26 @@ void House::roomSplit(const Room& room, int choiceAxis)
         else
             zDoorCoord = (rand() % ((zMid-1)-(locA.z+1))) + (locA.z+1);
         
-        mc->setBlock(Coordinate(xMid, locA.y+1, zDoorCoord), doorType.withMod(BlockMods::DoorOrient::WEST_TOP));
-        mc->setBlock(Coordinate(xMid, locA.y, zDoorCoord), doorType.withMod(BlockMods::DoorOrient::WEST_BOTTOM));
+        mc->setBlock(Coordinate(xMid, locA.y+1, zDoorCoord), doorType.withMod((int)BlockMods::DoorOrient::WEST_TOP));
+        mc->setBlock(Coordinate(xMid, locA.y, zDoorCoord), doorType.withMod((int)BlockMods::DoorOrient::WEST_BOTTOM));
         
-        this->rooms[this->numRooms] = Room();
+        this->rooms[this->numRooms] = new Room(mc, locA, Coordinate(xMid, locB.y, locB.z));
 
         bool splitFirstRoom = (bool)(rand() % 2);
         if (splitFirstRoom == 0)
             return;
         else
-            roomSplit(rooms[numRooms], 1);
+            roomSplit(*(rooms[numRooms]), 1);
         
         this->numRooms++;
         this->rooms.resize(numRooms+1);
-        this->rooms[numRooms] = Room();
+        this->rooms[numRooms] = new Room(mc, Coordinate(xMid, locA.y, locA.z), locB);
 
         bool splitSecondRoom = (bool)(rand() % 2);
         if (splitSecondRoom == 0)
             return;
         else
-            roomSplit(rooms[numRooms], 1);
+            roomSplit(*rooms[numRooms], 1);
     }
     else
     {
@@ -415,26 +415,26 @@ void House::roomSplit(const Room& room, int choiceAxis)
         else
             xDoorCoord = (rand() % ((xMid-1)-(locA.x+1))) + (locA.x+1);
         
-        mc->setBlock(Coordinate(xDoorCoord, locA.y+1, zMid), doorType.withMod(BlockMods::DoorOrient::NORTH_TOP));
-        mc->setBlock(Coordinate(xDoorCoord, locA.y, zMid), doorType.withMod(BlockMods::DoorOrient::NORTH_BOTTOM));
+        mc->setBlock(Coordinate(xDoorCoord, locA.y+1, zMid), doorType.withMod((int)BlockMods::DoorOrient::NORTH_TOP));
+        mc->setBlock(Coordinate(xDoorCoord, locA.y, zMid), doorType.withMod((int)BlockMods::DoorOrient::NORTH_BOTTOM));
         
-        this->rooms[this->numRooms] = Room();
+        this->rooms[this->numRooms] = new Room(mc, locA, Coordinate(locB.x, locB.y, zMid));
 
         bool splitFirstRoom = (bool)(rand() % 2);
         if (splitFirstRoom == 0)
             return;
         else
-            roomSplit(rooms[numRooms], 1);
+            roomSplit(*rooms[numRooms], 1);
         
         this->numRooms++;
         this->rooms.resize(numRooms+1);
-        this->rooms[numRooms] = Room();
+        this->rooms[numRooms] = new Room(mc, Coordinate(locA.x, locA.y, zMid), locB);
 
         bool splitSecondRoom = (bool)(rand() % 2);
         if (splitSecondRoom == 0)
             return;
         else
-            roomSplit(rooms[numRooms], 1);  
+            roomSplit(*rooms[numRooms], 1);  
     }
 
 }
@@ -475,18 +475,18 @@ void House::buildFloors(const Coordinate& locA, const Coordinate& locB, bool ano
     this->rooms.resize(numRooms+1);
     this->numFloors++;
 
-    this->rooms[numRooms] = Room();
+    this->rooms[numRooms] = new Room(mc, locA, locB);
 
     int choiceSplit = rand() % 2;
     if (choiceSplit == 1)
     {
         int choiceAxis = rand() % 2;
-        roomSplit(rooms[numRooms], choiceAxis);
+        roomSplit(*rooms[numRooms], choiceAxis);
     }
 
     buildStairs(Coordinate(locA.x, locA.y-5, locA.z));
 
-    bool anotherStorey = (bool)(rand() % 2);
+    anotherStorey = (bool)(rand() % 2);
     if (anotherStorey)
         buildFloors(Coordinate(locA.x, locA.y+1, locA.z), Coordinate(locB.x, locB.y+this->h, locB.z), anotherStorey);
 }
@@ -495,13 +495,13 @@ void House::buildStairs(const Coordinate& loc)
 {
     mc->setBlocks(Coordinate(loc.x+1,loc.y,loc.z+1), Coordinate(loc.x+4, loc.y+4, loc.z+1), Blocks::AIR);
 
-    mc->setBlock(Coordinate(loc.x+3, loc.y, loc.z+2), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
-    mc->setBlock(Coordinate(loc.x+2, loc.y+1, loc.z+2), stairMat.withMod(BlockMods::StairOrient::WEST_ASCENDING));
-    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+2), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
-    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_DESCENDING));
-    mc->setBlock(Coordinate(loc.x+2, loc.y+2, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
-    mc->setBlock(Coordinate(loc.x+3, loc.y+3, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
-    mc->setBlock(Coordinate(loc.x+4, loc.y+4, loc.z+1), stairMat.withMod(BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+3, loc.y, loc.z+2), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+2, loc.y+1, loc.z+2), stairMat.withMod((int)BlockMods::StairOrient::WEST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+2), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(loc.x+1, loc.y+1, loc.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_DESCENDING));
+    mc->setBlock(Coordinate(loc.x+2, loc.y+2, loc.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+3, loc.y+3, loc.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
+    mc->setBlock(Coordinate(loc.x+4, loc.y+4, loc.z+1), stairMat.withMod((int)BlockMods::StairOrient::EAST_ASCENDING));
 
     mc->setBlocks(Coordinate(loc.x+5, loc.y+4, loc.z+1), Coordinate(loc.x+5, loc.y+4, loc.z+3), floorMat);
     mc->setBlocks(Coordinate(loc.x+4, loc.y+4, loc.z+2), Coordinate(loc.x+1, loc.y+4, loc.z+3), floorMat);
@@ -511,4 +511,9 @@ void House::buildStairs(const Coordinate& loc)
 const Plot& House::getPlot()
 {
     return plot;
+}
+
+const Coordinate& House::getDoorCoordinate()
+{
+    return doorCoordinate;
 }
