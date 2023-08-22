@@ -4,17 +4,17 @@
 #include <mcpp/util.h>
 #include <mcpp/block.h>
 
+#include <cstdlib>
+
 using namespace mcpp;
 
 int main()
 {
-    MinecraftConnection mc;
-    Terraformer terraformer{&mc};
-
-    Coordinate playerCoordinate = mc.getPlayerPosition();
-    Coordinate lowCoord = playerCoordinate - Coordinate(8,8,8);
-    Coordinate highCoord = playerCoordinate + Coordinate(8,8,8);
-    terraformer.placePlotAndSmoothSurroundings(lowCoord, highCoord);
+    srand( time(0) );
+    MinecraftConnection mc = MinecraftConnection{};
+    
+    Village village{&mc};
+    village.build();
 
     return 0;
 }
