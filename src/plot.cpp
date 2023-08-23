@@ -8,8 +8,8 @@ Plot::Plot(Coordinate l1, Coordinate l2)
     : Plot(l1, l2, ((l1.y-l2.y)/2))
 {}
 Plot::Plot(Coordinate l1, Coordinate l2, int h)
-    : l1{l1}
-    , l2{l2}
+    : l1{Coordinate{l1.x, h, l1.z}}
+    , l2{Coordinate{l2.x, h, l2.z}}
     , h{h}
     , loc1{this->l1}
     , loc2{this->l2}
