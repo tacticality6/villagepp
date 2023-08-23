@@ -24,7 +24,7 @@ int main()
         Coordinate pc = mc.getPlayerPosition() + Coordinate{2,2,2};
         Coordinate pc2 = pc + Coordinate{14, 14, 14};
         Terraformer t = Terraformer{&mc};
-        int h = t.flattenPlot(pc, pc2);
+        int h = t.placePlotAndSmoothSurroundings(pc, pc2);
         Plot hp {pc, pc2, h};
         House house {&mc, hp};
         house.build();
