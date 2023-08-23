@@ -8,9 +8,9 @@ Plot::Plot(Coordinate l1, Coordinate l2)
     : Plot(l1, l2, ((l1.y-l2.y)/2))
 {}
 Plot::Plot(Coordinate l1, Coordinate l2, int h)
-    : l1{Coordinate{l1.x, h, l1.z}}
-    , l2{Coordinate{l2.x, h, l2.z}}
-    , h{h}
+    : l1{Coordinate{l1.x, h+1, l1.z}}
+    , l2{Coordinate{l2.x, h+1, l2.z}}
+    , h{h+1}
     , loc1{this->l1}
     , loc2{this->l2}
     , height{this->h}
