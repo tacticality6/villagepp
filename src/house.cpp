@@ -6,6 +6,7 @@
 #include <cassert>
 #include <algorithm>
 #include <iterator>
+#include <cmath>
 
 #include "../include/house.h"
 
@@ -37,7 +38,7 @@ House::House(mcpp::MinecraftConnection* conn, Plot plot)
     this->w = rand() % (plot.width / 2) + ((plot.width / 2));
 
     this->loc1 = plot.loc1;
-    this->loc2 = Coordinate(plot.loc1.x+l-1, plot.height-1, plot.loc1.z+w-1);
+    this->loc2 = Coordinate(plot.loc1.x+l-1, plot.height+h-1, plot.loc1.z+w-1);
 
 
     //block types arrays
@@ -130,8 +131,8 @@ void House::buildFrame()
 {
     mc->setBlocks(loc1, loc2, wallMat);
 
-    mc->setBlocks(Coordinate(loc1.x+2, loc1.y+1, loc1.z), Coordinate(loc2.x-2, loc2.y-1, loc2.z), Blocks::GLASS_PANE);
-    mc->setBlocks(Coordinate(loc1.x, loc1.y+1, loc1.z+2), Coordinate(loc2.x, loc2.y-1, loc2.z-2), Blocks::GLASS_PANE);
+    mc->setBlocks(Coordinate(loc1.x+2, loc1.y+1, loc1.z), Coordinate(loc2.x-2, loc2.y-1, loc2.z), Blocks::GLASS);
+    mc->setBlocks(Coordinate(loc1.x, loc1.y+1, loc1.z+2), Coordinate(loc2.x, loc2.y-1, loc2.z-2), Blocks::GLASS);
 
     mc->setBlocks(Coordinate(loc1.x+2, loc2.y-1, loc1.z-1), Coordinate(loc2.x-2, loc2.y-1, loc1.z-1), roofSlabMat.withMod(8));
     mc->setBlocks(Coordinate(loc1.x+2, loc2.y-1, loc2.z+1), Coordinate(loc2.x-2, loc2.y-1, loc2.z+1), roofSlabMat.withMod(8));
@@ -271,7 +272,7 @@ void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& lo
 {
     if (this->l %2 == 0)
     {
-        if (locA.x == floor(locA.x + l/2.0))
+        if (locA.x == this->loc1.x + l/2)
         {
             mc->setBlocks(Coordinate(locA.x-1, locA.y-1, locA.z-1), Coordinate(locA.x-1, locA.y-1, locB.z+1), wallMat);
             mc->setBlocks(Coordinate(locB.x+1, locA.y-1, locA.z-1), Coordinate(locB.x+1, locA.y-1, locB.z+1), wallMat);
@@ -280,7 +281,7 @@ void House::buildRoofNS(const mcpp::Coordinate& locA, const mcpp::Coordinate& lo
     }
     else
     {
-        if (locA.x == ceil(locA.x + l/2.0))
+        if (locA.x == this->loc1.x + l/2 + 1)
         {
             mc->setBlocks(Coordinate(locA.x-1, locA.y-1, locA.z-1), Coordinate(locA.x-1, locA.y-1, locB.z+1), wallMat);
             return;
@@ -310,7 +311,7 @@ void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int incr
 {
     if (this->w %2 == 0)
     {
-        if (locA.z == floor(locA.z + w/2.0))
+        if (locA.z == this->loc1.z + w/2)
         {
             mc->setBlocks(Coordinate(locA.x-1, locA.y-1, locA.z-1), Coordinate(locB.x+1, locA.y-1, locA.z-1), wallMat);
             mc->setBlocks(Coordinate(locA.x-1, locA.y-1, locA.z+1), Coordinate(locB.x+1, locA.y-1, locB.z+1), wallMat);
@@ -319,7 +320,7 @@ void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int incr
     }
     else
     {
-        if (locA.z == ceil(locA.z + w/2.0))
+        if (locA.z == this->loc1.z + w/2 + 1)
         {
             mc->setBlocks(Coordinate(locA.x-1, locA.y-1, locA.z-1), Coordinate(locB.x+1, locA.y-1, locA.z-1), wallMat);
             return;
@@ -443,14 +444,14 @@ void House::buildFloors(const Coordinate& locA, const Coordinate& locB, bool ano
 {
     if (!anotherStorey)
         return;
-    else if (this->numFloors == 2)
+    else if (this->numFloors == 3)
         return;
 
 
     mc->setBlocks(locA, locB, wallMat);
 
-    mc->setBlocks(Coordinate(locA.x+2, locA.y+1, locA.z), Coordinate(locB.x-2, locB.y-1, locB.z), Blocks::GLASS_PANE);
-    mc->setBlocks(Coordinate(locA.x, locA.y+1, locA.z+2), Coordinate(locB.x, locB.y-1, locB.z-2), Blocks::GLASS_PANE);
+    mc->setBlocks(Coordinate(locA.x+2, locA.y+1, locA.z), Coordinate(locB.x-2, locB.y-1, locB.z), Blocks::GLASS);
+    mc->setBlocks(Coordinate(locA.x, locA.y+1, locA.z+2), Coordinate(locB.x, locB.y-1, locB.z-2), Blocks::GLASS);
 
     mc->setBlocks(Coordinate(locA.x+2, locB.y-1, locA.z-1), Coordinate(locB.x-2, locB.y-1, locA.z-1), roofSlabMat.withMod(8));
     mc->setBlocks(Coordinate(locA.x+2, locB.y-1, locB.z+1), Coordinate(locB.x-2, locB.y-1, locB.z+1), roofSlabMat.withMod(8));
