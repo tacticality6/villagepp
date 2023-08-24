@@ -56,10 +56,12 @@ void Village::updateArrayRepresentationNaturalFeatures()
     }
 }
 
-void Village::setPlots()
+std::vector<Plot> Village::setPlots()
 {
     constexpr int isolationRadius = 10;
     constexpr int tolerance = 2;
+
+    std::vector<Plot> plotsInternal;
 
     const std::vector heightArr = this->mc->getHeights(villageDomain.first, villageDomain.second);
 
@@ -67,7 +69,7 @@ void Village::setPlots()
 
     int flatness = 0;
     
-    while (plots.size() < numPlots && flatness < 50) {
+    while (interimPlots.size() < numPlots && flatness < 50) {
         for (int x=tolerance; x < arrayRepresentation.size()-tolerance-plotSize; x++) {
             for (int z=tolerance; z < arrayRepresentation[x].size()-tolerance-plotSize; z++)
             {
@@ -147,22 +149,25 @@ void Village::setPlots()
         }
     }
 
+    //plots.reserve(numPlots);
     for (auto p : interimPlots)
     {
         Coordinate a = villageToWorld(p.first);
         Coordinate b = villageToWorld(p.second);
         std::cout << a.x << " " << a.z << "--" << b.x << " " << b.z << std::endl;
         int height = this->terraformer.placePlotAndSmoothSurroundings(a, b);
-        this->plots.push_back(Plot(a, b, height));
-    }
+        Plot plot {a, b, height};
 
+        plotsInternal.push_back(plot);
+    }
     //update the natural features of the array we just erased with the plots
     this->updateArrayRepresentationNaturalFeatures();
+    return std::move(plotsInternal);
 }
 
 void Village::build()
 {
-    this->setPlots();
+    this->plots = this->setPlots();
 
     std::vector<Coordinate> doorCoordinates;
 
