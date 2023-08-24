@@ -29,7 +29,7 @@ public:
     void build();
 
     void updateArrayRepresentationNaturalFeatures();
-    void setPlots();
+    std::vector<Plot> setPlots();
 
     mcpp::Coordinate worldToVillage(const mcpp::Coordinate& loc);
     mcpp::Coordinate villageToWorld(const mcpp::Coordinate& loc);
