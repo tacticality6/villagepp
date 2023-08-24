@@ -17,10 +17,11 @@ int main()
         srand( time(0) );
         MinecraftConnection mc = MinecraftConnection{};
         
-        /*
+        
         Village village{&mc};
         village.build();
-        */
+        
+        /*
         Coordinate pc = mc.getPlayerPosition() + Coordinate{2,2,2};
         Coordinate pc2 = pc + Coordinate{14, 14, 14};
         Terraformer t = Terraformer{&mc};
@@ -28,6 +29,7 @@ int main()
         Plot hp {pc, pc2, h};
         House house {&mc, hp};
         house.build();
+        */
 
         return 0;
         
