@@ -2,7 +2,7 @@
 
 #include "plot.h"
 
-
+#pragma once
 
 class Decoration
 {
