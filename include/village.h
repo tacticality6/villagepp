@@ -7,10 +7,12 @@
 
 #pragma once
 
+
+enum class ArrayFeatures {NONE, PLOT, DOOR, TREE, WATER, TEMP_ISOLATE};
+
 class Village
 {
 private:
-    enum ArrayFeatures {NONE, PLOT, DOOR, TREE, WATER, TEMP_ISOLATE};
     mcpp::MinecraftConnection* mc;
     static constexpr int maxSize{150};
     static constexpr int plotSize{15};
