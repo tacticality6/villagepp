@@ -343,7 +343,7 @@ void House::buildRoofEW(const Coordinate& locA, const Coordinate& locB, int incr
 
     increment++;
 
-    return buildRoofNS(Coordinate(locA.x, locA.y+1, locA.z+1), Coordinate(locB.x, locA.y+1, locB.z-1), increment);
+    return buildRoofEW(Coordinate(locA.x, locA.y+1, locA.z+1), Coordinate(locB.x, locA.y+1, locB.z-1), increment);
 }
 
 void House::buildRoof()
@@ -444,7 +444,7 @@ void House::buildFloors(const Coordinate& locA, const Coordinate& locB, bool ano
 {
     if (!anotherStorey)
         return;
-    else if (this->numFloors == 3)
+    else if (this->numFloors == 2)
         return;
 
 
